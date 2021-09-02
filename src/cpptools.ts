@@ -6,7 +6,7 @@
  */ /** */
 
 import * as codemodel_api from '@cmt/drivers/codemodel-driver-interface';
-import {channelManager, createLogger} from '@cmt/logging';
+import {createLogger} from '@cmt/logging';
 import rollbar from '@cmt/rollbar';
 import * as shlex from '@cmt/shlex';
 import * as util from '@cmt/util';
@@ -19,7 +19,6 @@ nls.config({ messageFormat: nls.MessageFormat.bundle, bundleFormat: nls.BundleFo
 const localize: nls.LocalizeFunc = nls.loadMessageBundle();
 
 const log = createLogger('cpptools');
-const log2 = channelManager.get('CMake configuration provider');
 
 type Architecture = 'x86' | 'x64' | 'arm' | 'arm64' | undefined;
 type StandardVersion = "c89" | "c99" | "c11" | "c17" | "c++98" | "c++03" | "c++11" | "c++14" | "c++17" | "c++20"
@@ -316,13 +315,11 @@ export class CppConfigurationProvider implements cpt.CustomConfigurationProvider
     const configurations = this._fileIndex.get(norm_path);
     if (this._activeTarget && configurations?.has(this._activeTarget)) {
       const result = configurations!.get(this._activeTarget);
-      log2.appendLine('[provideConfigurations]');
-      log2.appendLine(JSON.stringify(result, null, 2));
+      log.debug('[provideConfigurations]', JSON.stringify(result, null, 2));
       return result;
     } else {
       const result = configurations?.values().next().value;
-      log2.appendLine('[provideConfigurations]');
-      log2.appendLine(JSON.stringify(result, null, 2));
+      log.debug('[provideConfigurations]', JSON.stringify(result, null, 2));
       return result; // Any value is fine if the target doesn't match
     }
   }
@@ -486,9 +483,7 @@ export class CppConfigurationProvider implements cpt.CustomConfigurationProvider
         return value;
       }
     };
-    log2.clear();
-    log2.appendLine(JSON.stringify(this._fileIndex, replacer, 2));
-    log2.show();
+    log.debug('[updateFileGroup]', JSON.stringify(this._fileIndex, replacer, 2));
   }
 
     /**
